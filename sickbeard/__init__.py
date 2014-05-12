@@ -43,7 +43,7 @@ from indexers.indexer_api import indexerApi
 from indexers.indexer_exceptions import indexer_shownotfound, indexer_exception, indexer_error, indexer_episodenotfound, \
     indexer_attributenotfound, indexer_seasonnotfound, indexer_userabort, indexerExcepts
 
-from common import SD, SKIPPED, NAMING_REPEAT
+from common import SD, SKIPPED, NAMING_REPEAT, qualityPresetStrings
 
 from sickbeard.databases import mainDB, cache_db, failed_db
 
@@ -499,7 +499,9 @@ def initialize(consoleLogging=True):
             GUI_NAME, HOME_LAYOUT, HISTORY_LAYOUT, DISPLAY_SHOW_SPECIALS, COMING_EPS_LAYOUT, COMING_EPS_SORT, COMING_EPS_DISPLAY_PAUSED, COMING_EPS_MISSED_RANGE, DATE_PRESET, TIME_PRESET, TIME_PRESET_W_SECONDS, \
             METADATA_WDTV, METADATA_TIVO, IGNORE_WORDS, CALENDAR_UNPROTECTED, CREATE_MISSING_SHOW_DIRS, \
             ADD_SHOWS_WO_DIR, USE_SUBTITLES, SUBTITLES_LANGUAGES, SUBTITLES_DIR, SUBTITLES_SERVICES_LIST, SUBTITLES_SERVICES_ENABLED, SUBTITLES_HISTORY, SUBTITLES_FINDER_FREQUENCY, subtitlesFinderScheduler, \
-            USE_FAILED_DOWNLOADS, DELETE_FAILED, ANON_REDIRECT, LOCALHOST_IP, TMDB_API_KEY, DEBUG, PROXY_SETTING
+            USE_FAILED_DOWNLOADS, DELETE_FAILED, ANON_REDIRECT, LOCALHOST_IP, TMDB_API_KEY, DEBUG, PROXY_SETTING, NUM_OF_THREADS, \
+            QUALITY_PRESETS
+
 
         if __INITIALIZED__:
             return False
@@ -523,6 +525,7 @@ def initialize(consoleLogging=True):
         CheckSection(CFG, 'Pushalot')
         CheckSection(CFG, 'Pushbullet')
         CheckSection(CFG, 'Subtitles')
+        CheckSection(CFG, 'Quality')
 
         ACTUAL_LOG_DIR = check_setting_str(CFG, 'General', 'log_dir', 'Logs')
         # put the log dir inside the data dir, unless an absolute path
@@ -554,7 +557,7 @@ def initialize(consoleLogging=True):
         LOCALHOST_IP = check_setting_str(CFG, 'General', 'localhost_ip', '')
         ANON_REDIRECT = check_setting_str(CFG, 'General', 'anon_redirect', 'http://dereferer.org/?')
         PROXY_SETTING = check_setting_str(CFG, 'General', 'proxy_setting', '')
-        # attempt to help prevent users from breaking links by using a bad url 
+        # attempt to help prevent users from breaking links by using a bad url
         if not ANON_REDIRECT.endswith('?'):
             ANON_REDIRECT = ''
 
@@ -945,6 +948,12 @@ def initialize(consoleLogging=True):
 
         torrentRssData = check_setting_str(CFG, 'TorrentRss', 'torrentrss_data', '')
         torrentRssProviderList = providers.getTorrentRssProviderList(torrentRssData)
+
+        qualityPresets = check_setting_str(CFG, 'Quality', 'presets', ','.join(qualityPresetStrings.values()))
+        QUALITY_PRESETS = dict()
+        for preset in qualityPresets.split(','):
+            initial = check_setting_str(CFG, 'Quality', '%s_initial' % preset, '')
+        # QUALITY_PRESETS = check_setting_str(CFG, 'Quality', 'presets')
 
         if not os.path.isfile(CONFIG_FILE):
             logger.log(u"Unable to find '" + CONFIG_FILE + "', all settings will be default!", logger.DEBUG)

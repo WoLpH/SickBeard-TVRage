@@ -187,7 +187,8 @@ def getURL(url, post_data=None, headers=None, params=None, timeout=30, json=Fals
 
         it = iter(req_headers)
 
-        if sickbeard.PROXY_SETTING:
+        if use_proxy and sickbeard.PROXY_SETTING:
+            logger.log("Using proxy for url: " + url, logger.DEBUG)
             proxies = {
                 "http": sickbeard.PROXY_SETTING,
                 "https": sickbeard.PROXY_SETTING,
@@ -650,9 +651,9 @@ def fixSetGroupID(childPath):
 def sanitizeSceneName(name, ezrss=False):
     """
     Takes a show name and returns the "scenified" version of it.
-    
+
     ezrss: If true the scenified version will follow EZRSS's cracksmoker rules as best as possible
-    
+
     Returns: A string containing the scene version of the show name given.
     """
 
@@ -673,7 +674,9 @@ def sanitizeSceneName(name, ezrss=False):
     if name.endswith('.'):
         name = name[:-1]
 
-    return name
+        return name
+    else:
+        return ''
 
 
 def create_https_certificates(ssl_cert, ssl_key):
@@ -835,7 +838,7 @@ def md5_for_file(filename, block_size=2 ** 16):
 
 def get_lan_ip():
     """
-    Simple function to get LAN localhost_ip 
+    Simple function to get LAN localhost_ip
     http://stackoverflow.com/questions/11735821/python-get-localhost-ip
     """
 
@@ -898,7 +901,7 @@ By Pedro Jose Pereira Vieito <pvieito@gmail.com> (@pvieito)
 * The keys should be unique for each device
 
 To add a new encryption_version:
-  1) Code your new encryption_version        
+  1) Code your new encryption_version
   2) Update the last encryption_version available in webserve.py
   3) Remember to maintain old encryption versions and key generators for retrocompatibility
 """
